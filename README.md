@@ -1,24 +1,24 @@
-# web-flask-python_3.10
+## 脚本解析
 
-## 环境说明
+文件`exp.py`，修改文件内`bv`号，解析b站视频地址
 
-提供 `Python 3.10 + Flask` 的基础环境，默认暴露端口位于8080
+## 在线网站
 
-## 如何使用
+使用docker跑一个简单的flask应用，源码在`src`目录下app.py作为后端，templates目录下index.html作为前端
 
-直接将Flask文件/项目放入 `./src` 目录即可，Flask项目主文件请使用 `app.py` 作为文件名，便于环境识别Flask项目位置
+编译docker镜像
 
-如使用了 `pycryptodome` 等第三方库，请在 `./Dockerfile` 内补充pip安装语句
-
-源码放置进 `./src` 目录之后，执行 
-```shell
-docker build .
+```bash
+docker build -t flask:bilidown .
 ```
-即可开始编译镜像
 
-也可以在安放好相关项目文件之后，直接使用 `./docker/docker-compose.yml` 内的 `docker-compose` 文件实现一键启动测试容器
+启动容器
 
-```shell
-cd ./docker
-docker-compose up -d
+```bash
+docker run -d -p 5000:5000 flask:bilidown bilidown
 ```
+
+
+
+![bilidown](./bili.png)
+
