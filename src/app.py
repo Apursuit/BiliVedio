@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, Response
+from flask import Flask, request, jsonify, render_template
 import requests
 import re
 
@@ -71,13 +71,10 @@ def fetch_video():
             if download_info and 'data' in download_info:
                 # 提供下载链接（如果有多个清晰度，选择第一个清晰度链接）
                 download_url = download_info['data']['durl'][0].get('url', '未找到下载链接')
-                download_quality = download_info['data']['quality']
             else:
                 download_url = '获取下载信息失败'
-                download_quality = None
         else:
             download_url = '获取Avid或Cid失败'
-            download_quality = None
 
         # 提供 B 站预览链接
         preview_url = f"https://www.bilibili.com/video/{bv}"
@@ -86,35 +83,11 @@ def fetch_video():
             "video_name": video_name,
             "cover_url": cover_url,
             "download_url": download_url,
-            "download_quality": download_quality,
-            "preview_url": preview_url  # 直接返回B站预览页面链接
+            # "preview_url": preview_url  # 直接返回B站预览页面链接
+            "preview_url": download_url
         })
     else:
         return jsonify({"error": "获取视频详细信息失败"}), 500
-
-@app.route('/video', methods=['GET'])
-def stream_video():
-    video_url = request.args.get('url')
-
-    # 确保视频URL有效
-    if not video_url:
-        return jsonify({"error": "未提供有效的 URL"}), 400
-
-    # 使用流式下载并返回给前端
-    try:
-        response = requests.get(video_url, headers=HEADERS, stream=True)
-        response.raise_for_status()
-
-        def generate():
-            for chunk in response.iter_content(chunk_size=1024):
-                yield chunk
-
-        # 设置视频响应的Content-Type
-        return Response(generate(), content_type='video/mp4')
-    
-    except requests.exceptions.RequestException as e:
-        print(f"请求视频失败: {e}")
-        return jsonify({"error": "视频下载失败"}), 500
 
 if __name__ == '__main__':
     app.run(debug=False, host="0.0.0.0", port=5000)
