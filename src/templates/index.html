@@ -3,64 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BiliBili Video Downloader</title>
+    <title>BiliDown</title>
     <link rel="stylesheet" href="./static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
         <div class="logo">
-            <img src="./static/assets/BILIBILI_LOGO.svg" draggable="false" />
+            <img src="./static/assets/BILIBILI_LOGO.svg" draggable="false" alt="Bilibili Logo" />
         </div>
         <div class="input_search">
             <input type="text" id="videoUrl" placeholder="请输入视频链接或BV号..." />
-            <button id="downloadBtn">获取</button>
+            <button id="downloadBtn">🔍 获取</button>
         </div>
         <div class="use-info">
             <div id="collapse">
                 <div id="videoUrlInfo" style="display:none;">
-                    <h3>视频标题</h3>
-                    <p id="videoName"></p>
-                    <div id="imgUrlInfo" style="display:none;">
-                        <h3>预览封面</h3>
-                        <p id="imgUrl"></p>
+                    <div class="info-row">
                         <p>
-                            <a rel="noreferrer" id="previewImage" href="#" target="_blank">预览图片</a>
+                            <span class="info-label">视频标题：</span>
+                            <span id="videoName" class="info-value"></span>
+                        </p>
+                        <p>
+                            <span class="info-label">图片地址：</span>
+                            <span id="imageUrlValue" class="info-value"></span>
+                        </p>
+                        <p>
+                            <span class="info-label">视频地址：</span>
+                            <span id="videoUrlValue" class="info-value"></span>
                         </p>
                     </div>
-                    <p>
-                        <a id="previewVideo" href="#" target="_blank">预览视频</a>
-                        <a id="downloadVideo" href="#" target="_blank" download>下载视频</a>
-                    </p>
-                </div>
-                <div id="usageInfo">
-                    <h3>使用说明</h3>
-                    <p>1. 手机，复制视频链接即可</p>
-                    <p>2. 电脑，复制地址栏地址即可</p>
-                    <p>3. 图片可以长按进行保存</p>
+                    <div class="info-row">
+                        <a rel="noreferrer" id="previewImage" href="#" target="_blank" class="info-link">📷 预览图片</a>
+                        <a id="previewVideo" href="#" target="_blank" class="info-link">🎥 预览视频</a>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="tip">
-            仅供学习使用，<a href="#" target="_blank">原作者：zhouql.vip</a>
         </div>
     </div>
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // 获取 DOM 元素
             const videoUrlInput = document.getElementById('videoUrl');
             const downloadBtn = document.getElementById('downloadBtn');
             const videoUrlInfo = document.getElementById('videoUrlInfo');
-            const imgUrlInfo = document.getElementById('imgUrlInfo');
             const videoNameElement = document.getElementById('videoName');
             const previewVideoElement = document.getElementById('previewVideo');
             const previewImageElement = document.getElementById('previewImage');
-            const downloadVideoElement = document.getElementById('downloadVideo');
+            const imageUrlValue = document.getElementById('imageUrlValue');
+            const videoUrlValue = document.getElementById('videoUrlValue');
 
             let videoName = '';
             let downloadUrl = '';
             let bgUrl = '';
-            let previewUrl = '';
 
             // 获取视频信息
             downloadBtn.addEventListener('click', function () {
@@ -82,14 +79,13 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (!data.video_name || !data.download_url || !data.preview_url) {
+                    if (!data.video_name || !data.download_url || !data.cover_url) {
                         throw new Error('后端返回数据不完整');
                     }
 
                     videoName = data.video_name;
+                    downloadUrl = data.download_url; // 使用 download_url 作为预览视频的 URL
                     bgUrl = data.cover_url;
-                    downloadUrl = data.download_url;
-                    previewUrl = data.preview_url; // 获取预览视频的 URL
 
                     // 更新 UI
                     updateUI();
@@ -105,15 +101,14 @@
             // 更新 UI
             function updateUI() {
                 videoNameElement.innerText = videoName;
-                previewVideoElement.href = previewUrl;  // 直接链接到 B 站的视频
+                previewVideoElement.href = downloadUrl; // 预览视频链接改为 download_url
                 previewImageElement.href = bgUrl;
 
-                videoUrlInfo.style.display = 'block';
-                imgUrlInfo.style.display = bgUrl ? 'block' : 'none';
+                // 设置图片地址和视频地址
+                imageUrlValue.innerHTML = `<a href="${bgUrl}" target="_blank">${bgUrl}</a>`; // 图片地址
+                videoUrlValue.innerHTML = `<a href="${downloadUrl}" target="_blank">${downloadUrl}</a>`; // 视频地址
 
-                // 设置下载按钮
-                downloadVideoElement.href = `/video?url=${encodeURIComponent(downloadUrl)}`; // 设置下载链接
-                downloadVideoElement.download = `${videoName}.mp4`; // 设置下载文件的默认名称
+                videoUrlInfo.style.display = 'block';
             }
 
             // 切换按钮加载状态
