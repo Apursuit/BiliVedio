@@ -32,3 +32,4 @@ chmod 740 /app/*
 
 # 在无debug参数下启动flask
 cd /app && flask run -h 0.0.0.0 -p 5000
+
